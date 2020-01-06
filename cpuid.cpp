@@ -278,26 +278,40 @@ int main() {
     }
 
     //////////////////////////////////////////////////////////
-    //                       EAX = 2                        //
+    //                       EAX = 3                        //
     //////////////////////////////////////////////////////////
 
     cout << endl << "------- Section Three -------" << endl;
-
-    // TODO: Properly format serial number as XXXX-XXXX-XXXX-XXXX-XXXX-XXXX
-    // TODO: Serial number is 96 bits long, not 64 bits
 
     if (serialNumberSupported) {
         clearStruct(data);
         getCPUIDData(3, data);
 
-        uint64_t high = 0x00112233;
-        uint64_t low = 0x44556677;
-        uint64_t serialNumber = (high << 32) | low;
+        uint32_t mid = data->EDX;
+        uint32_t low = data->ECX;
 
-        char serialString[17];
-        snprintf(serialString, 17, "%016lX", serialNumber);
+        char highString[9];
+        char midString[9];
+        char lowString[9];
+        snprintf(highString, 9, "%08X", signature);
+        snprintf(midString, 9, "%08X", mid);
+        snprintf(lowString, 9, "%08X", low);
 
-        printFeatureValue("Processor Serial Number", serialString);
+        string serial;
+
+        serial.append(stringFromRaw(highString, 4));
+        serial.append(1, '-');
+        serial.append(stringFromRaw(highString + 4, 4));
+        serial.append(1, '-');
+        serial.append(stringFromRaw(midString, 4));
+        serial.append(1, '-');
+        serial.append(stringFromRaw(midString + 4, 4));
+        serial.append(1, '-');
+        serial.append(stringFromRaw(lowString, 4));
+        serial.append(1, '-');
+        serial.append(stringFromRaw(lowString + 4, 4));
+
+        printFeatureValue("Processor Serial Number", serial);
     }
 
     // for (int i = 1; i <= maxBasicInput; i++) {
